@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Łatwe Fiszki</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ===== LIGHT THEME (default) ===== */
+:root {
+  --green:      #3aaa35;
+  --green-dark: #2a8026;
+  --green-light:#e8f8e7;
+  --red:        #e0211d;
+  --red-dark:   #b01815;
+  --red-light:  #fde8e8;
+  --blue:       #3b82f6;
+  --blue-light: #eff6ff;
+  --orange:     #f59e0b;
+  --orange-light:#fef3c7;
+  --mint:       #a8e6cf;
+  --mint-dark:  #4dba87;
+
+  --bg:         #f4f6f9;
+  --surface:    #ffffff;
+  --surface2:   #f4f6f9;
+  --text:       #1a1f2e;
+  --text-mid:   #5a6275;
+  --text-light: #9aa0b0;
+  --border:     #e4e8ef;
+
+  --card-front: #a8e6cf;
+  --card-back:  #b8d4f8;
+
+  --sh-sm: 0 2px 8px  rgba(0,0,0,.08);
+  --sh:    0 4px 20px rgba(0,0,0,.10);
+  --sh-lg: 0 8px 40px rgba(0,0,0,.13);
+  --r:16px; --rs:10px; --rx:8px;
+}
+
+/* ===== DARK THEME ===== */
+html.dark {
+  --bg:         #0f1117;
+  --surface:    #1c1f2b;
+  --surface2:   #252836;
+  --text:       #eef0f6;
+  --text-mid:   #a8adc4;
+  --text-light: #636880;
+  --border:     #2e3247;
+
+  --green-light:#1a3320;
+  --red-light:  #2d1414;
+  --blue-light: #132040;
+  --orange-light:#2d2010;
+
+  --card-front: #2d6b52;
+  --card-back:  #1e3d6b;
+
+  --sh-sm: 0 2px 8px  rgba(0,0,0,.35);
+  --sh:    0 4px 20px rgba(0,0,0,.40);
+  --sh-lg: 0 8px 40px rgba(0,0,0,.50);
+}
+
+/* ===== BASE ===== */
+html, body {
+  height: 100%;
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .25s, color .25s;
+}
+
+/* ===== SCREENS ===== */
+.screen { display: none; min-height: 100dvh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1.5px solid var(--border);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0; z-index: 100; min-height: 62px;
+  transition: background .25s, border-color .25s;
+}
+.topbar-title {
+  font-size: 1.05rem; font-weight: 800; color: var(--text);
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ===== BUTTONS ===== */
+.ibtn {
+  width: 44px; height: 44px; border-radius: var(--rx); border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1rem; font-weight: 700; flex-shrink: 0;
+  touch-action: manipulation; user-select: none; transition: transform .12s;
+}
+.ibtn:active { transform: scale(.91); }
+.ibtn-red    { background: var(--red-light);    color: var(--red-dark); }
+.ibtn-green  { background: var(--green-light);  color: var(--green-dark); }
+.ibtn-blue   { background: var(--blue);          color: #fff; }
+
+/* Theme toggle button */
+.theme-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border);
+  background: var(--surface2); color: var(--text-mid);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
+  touch-action: manipulation; transition: background .2s, border-color .2s, transform .12s;
+}
+.theme-btn:active { transform: scale(.91); }
+
+/* ===== HOME ===== */
+#home-screen { align-items: stretch; justify-content: flex-start; }
+
+.home-header {
+  background: var(--surface);
+  border-bottom: 1.5px solid var(--border);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  transition: background .25s, border-color .25s;
+}
+.logo-wrap { display: flex; align-items: center; gap: 10px; }
+.logo-svg { width: 44px; height: 44px; flex-shrink: 0; }
+.logo-text-group { display: flex; flex-direction: column; line-height: 1.15; }
+.logo-top { font-size: .88rem; font-weight: 900; color: var(--red); letter-spacing: .06em; text-transform: uppercase; }
+.logo-bot { font-size: .88rem; font-weight: 900; color: var(--green); letter-spacing: .06em; text-transform: uppercase; }
+
+.home-header-right { display: flex; align-items: center; gap: 10px; }
+.home-menu-btn {
+  background: var(--green-light); color: var(--green-dark); border: none;
+  border-radius: var(--rs); padding: 10px 14px;
+  font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 800;
+  cursor: pointer; white-space: nowrap; touch-action: manipulation; flex-shrink: 0;
+  transition: background .2s;
+}
+.home-menu-btn:active { opacity: .8; }
+
+.home-body {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 28px 16px 40px; gap: 28px; width: 100%; max-width: 600px; align-self: center;
+}
+
+.create-card-btn {
+  width: 100%; background: var(--surface);
+  border: 2.5px dashed var(--mint-dark); border-radius: var(--r);
+  padding: 32px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  cursor: pointer; touch-action: manipulation; user-select: none;
+  transition: background .15s, border-color .15s;
+}
+.create-card-btn:active { background: var(--green-light); }
+.create-plus {
+  width: 64px; height: 64px; background: var(--mint); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; color: #fff; line-height: 1; box-shadow: var(--sh);
+}
+.create-card-label { font-size: 1rem; font-weight: 800; color: var(--text); }
+.create-card-sub { font-size: .8rem; color: var(--text-light); font-weight: 600; }
+
+.home-sets-wrap { width: 100%; }
+.section-title {
+  font-size: .75rem; font-weight: 800; color: var(--text-light);
+  letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px;
+}
+
+.home-set-card {
+  background: var(--surface); border-radius: var(--r);
+  padding: 16px 18px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--sh-sm); cursor: pointer; border: 2px solid transparent;
+  touch-action: manipulation; user-select: none;
+  transition: background .15s, border-color .15s;
+}
+.home-set-card:active { border-color: var(--mint-dark); background: var(--green-light); }
+.home-set-icon {
+  width: 44px; height: 44px; border-radius: var(--rs);
+  background: var(--green-light); display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.home-set-info { flex: 1; min-width: 0; }
+.home-set-name { font-size: .97rem; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.home-set-meta { font-size: .77rem; color: var(--text-light); font-weight: 600; margin-top: 2px; }
+.home-set-progress { font-size: .75rem; color: var(--green-dark); font-weight: 700; margin-top: 2px; }
+.home-set-arrow { color: var(--text-light); font-size: 1.2rem; flex-shrink: 0; }
+
+/* ===== CREATE ===== */
+#create-screen { justify-content: flex-start; }
+.create-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 24px 16px 32px; gap: 22px; width: 100%;
+}
+.name-input {
+  width: 100%; max-width: 420px; background: var(--surface);
+  border: 2px solid var(--border); border-radius: var(--rs);
+  padding: 12px 16px; font-family: 'Nunito', sans-serif;
+  font-size: .97rem; font-weight: 700; color: var(--text); outline: none;
+  transition: border-color .15s, background .25s;
+}
+.name-input:focus { border-color: var(--green); }
+.name-input::placeholder { color: var(--text-light); font-weight: 600; }
+
+.card-step-label {
+  font-size: .75rem; font-weight: 800; color: var(--text-light);
+  letter-spacing: .1em; text-transform: uppercase; text-align: center;
+}
+.fc-wrap { perspective: 1200px; width: min(360px, 92vw); height: 210px; }
+.fc { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,0,.2,1); }
+.fc.flipped { transform: rotateY(180deg); }
+.fc-face {
+  position: absolute; inset: 0; border-radius: 20px;
+  backface-visibility: hidden; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 22px 18px; box-shadow: var(--sh-lg);
+}
+.fc-front { background: var(--card-front); }
+.fc-back  { background: var(--card-back); transform: rotateY(180deg); }
+.fc-label {
+  font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(128,128,128,.6); margin-bottom: 10px; align-self: flex-start;
+}
+.fc-input {
+  width: 100%; background: rgba(255,255,255,.2); border: none; border-radius: 12px;
+  padding: 11px 14px; font-family: 'Nunito', sans-serif; font-size: 1.25rem;
+  font-weight: 700; color: var(--text); text-align: center; outline: none;
+  resize: none; min-height: 60px; transition: background .15s;
+}
+html.dark .fc-input { background: rgba(0,0,0,.2); color: #eef0f6; }
+.fc-input:focus { background: rgba(255,255,255,.45); }
+html.dark .fc-input:focus { background: rgba(0,0,0,.35); }
+.fc-input::placeholder { color: rgba(128,128,128,.55); font-style: italic; font-weight: 600; }
+
+.create-hint { font-size: .82rem; font-weight: 700; color: var(--text-light); text-align: center; }
+.create-next-row { display: flex; align-items: center; justify-content: center; }
+
+/* ===== MENU ===== */
+#menu-screen { justify-content: flex-start; }
+.menu-body {
+  flex: 1; padding: 20px 16px 40px; display: flex; flex-direction: column;
+  gap: 12px; width: 100%; max-width: 600px; align-self: center;
+}
+.menu-card {
+  background: var(--surface); border-radius: var(--r);
+  box-shadow: var(--sh-sm); overflow: hidden; border: 1.5px solid var(--border);
+  transition: background .25s, border-color .25s;
+}
+.menu-card-top {
+  padding: 16px 18px 14px; display: flex; align-items: flex-start; gap: 12px;
+  border-bottom: 1.5px solid var(--border);
+}
+.menu-card-icon {
+  width: 42px; height: 42px; background: var(--green-light);
+  border-radius: var(--rs); display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; flex-shrink: 0;
+}
+.menu-card-info { flex: 1; min-width: 0; }
+.menu-card-name { font-size: 1rem; font-weight: 800; color: var(--text); word-break: break-word; }
+.menu-card-meta { font-size: .78rem; color: var(--text-light); font-weight: 600; margin-top: 4px; }
+.menu-prog-bar { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.menu-prog-fill { height: 100%; background: var(--green); border-radius: 99px; }
+.menu-card-btns { padding: 12px 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+.mab {
+  flex: 1; min-width: 0; padding: 12px 6px; border-radius: var(--rs); border: none;
+  font-family: 'Nunito', sans-serif; font-size: .84rem; font-weight: 800;
+  cursor: pointer; text-align: center; white-space: nowrap; touch-action: manipulation;
+  transition: opacity .12s;
+}
+.mab:active { opacity: .8; }
+.mab-g { background: var(--green); color: #fff; }
+.mab-b { background: var(--blue); color: #fff; }
+.mab-o { background: var(--orange-light); color: #92400e; }
+html.dark .mab-o { color: #f5c060; }
+.mab-r { background: var(--red-light); color: var(--red-dark); flex: 0 0 auto; width: 44px; padding: 12px 0; }
+
+.menu-empty { text-align: center; padding: 60px 20px; color: var(--text-light); }
+.menu-empty-icon { font-size: 3.5rem; margin-bottom: 12px; }
+.menu-empty-txt { font-size: .97rem; font-weight: 700; line-height: 1.6; }
+
+/* ===== EDIT ===== */
+#edit-screen { justify-content: flex-start; }
+.edit-body {
+  flex: 1; padding: 16px 16px 40px; display: flex; flex-direction: column;
+  gap: 0; width: 100%; max-width: 600px; align-self: center;
+}
+.edit-add-btn {
+  width: 100%; background: var(--surface); border: 2px dashed var(--mint-dark);
+  border-radius: var(--r); padding: 16px; display: flex; align-items: center;
+  justify-content: center; gap: 10px; cursor: pointer; font-family: 'Nunito', sans-serif;
+  font-size: .95rem; font-weight: 800; color: var(--mint-dark); margin-bottom: 16px;
+  touch-action: manipulation; transition: background .15s;
+}
+.edit-add-btn:active { background: var(--green-light); }
+.edit-card-item {
+  background: var(--surface); border-radius: var(--r);
+  box-shadow: var(--sh-sm); border: 1.5px solid var(--border);
+  margin-bottom: 10px; overflow: hidden;
+  transition: background .25s, border-color .25s;
+}
+.edit-card-header {
+  padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border-bottom: 1.5px solid var(--border);
+}
+.edit-card-num { font-size: .75rem; font-weight: 800; color: var(--text-light); letter-spacing: .08em; text-transform: uppercase; flex: 1; }
+.edit-card-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.edit-field-label { font-size: .68rem; font-weight: 800; color: var(--text-light); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+.edit-input {
+  width: 100%; background: var(--surface2); border: 2px solid var(--border);
+  border-radius: var(--rs); padding: 10px 14px; font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 700; color: var(--text); outline: none;
+  transition: border-color .15s, background .25s;
+}
+.edit-input:focus { border-color: var(--blue); }
+.edit-save-btn {
+  width: 100%; padding: 14px; border-radius: var(--r); border: none;
+  background: var(--green); color: #fff; font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 800; cursor: pointer; margin-top: 6px; touch-action: manipulation;
+}
+.edit-save-btn:active { opacity: .85; }
+.ibtn-sm {
+  width: 36px; height: 36px; border-radius: var(--rx); border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: .85rem; font-weight: 700; touch-action: manipulation;
+}
+.ibtn-sm:active { transform: scale(.91); }
+.ibtn-sm-red { background: var(--red-light); color: var(--red-dark); }
+
+/* ===== START ===== */
+#start-screen { align-items: center; justify-content: center; padding: 40px 20px; }
+.start-inner { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.start-icon { font-size: 3.5rem; }
+.start-name { font-size: 1.45rem; font-weight: 900; color: var(--text); text-align: center; word-break: break-word; }
+.start-meta { font-size: .86rem; font-weight: 700; color: var(--text-light); text-align: center; margin-top: -10px; }
+.start-divider { width: 100%; height: 1.5px; background: var(--border); border-radius: 99px; }
+.start-btn {
+  width: 100%; padding: 17px 22px; border-radius: var(--r); border: none;
+  font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800;
+  cursor: pointer; box-shadow: var(--sh); display: flex; align-items: center; gap: 12px; touch-action: manipulation;
+}
+.start-btn:active { opacity: .85; }
+.start-btn-icon { font-size: 1.2rem; }
+.start-btn-label { flex: 1; text-align: left; }
+.start-btn-sub { font-size: .73rem; font-weight: 600; opacity: .75; }
+.sb-g { background: var(--green); color: #fff; }
+.sb-b { background: var(--blue); color: #fff; }
+.start-back {
+  background: none; border: none; color: var(--text-light);
+  font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 700;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 4px;
+}
+
+/* ===== STUDY ===== */
+#study-screen { justify-content: flex-start; }
+.study-topbar {
+  background: var(--bg); border-bottom: 1.5px solid var(--border);
+  padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0; z-index: 100; min-height: 62px;
+  backdrop-filter: blur(10px);
+  transition: background .25s, border-color .25s;
+}
+.study-prog-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.study-counter { font-size: .8rem; font-weight: 800; color: var(--text-light); letter-spacing: .06em; }
+.study-prog-bar { width: 100%; max-width: 160px; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.study-prog-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width .4s; }
+
+.swap-pill {
+  display: flex; align-items: center; gap: 5px; background: var(--surface2);
+  border: 1.5px solid var(--border); border-radius: 99px; padding: 5px 11px;
+  cursor: pointer; touch-action: manipulation; flex-shrink: 0;
+  transition: background .2s, border-color .2s;
+}
+.swap-pill.active { background: var(--orange-light); border-color: var(--orange); }
+.swap-pill-txt { font-size: .72rem; font-weight: 800; color: var(--text-mid); white-space: nowrap; }
+.swap-pill.active .swap-pill-txt { color: #92400e; }
+html.dark .swap-pill.active .swap-pill-txt { color: #f5c060; }
+
+.study-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 28px 16px 120px; gap: 18px;
+}
+.study-viewport {
+  width: min(360px, 92vw); height: 220px;
+  position: relative; overflow: hidden; border-radius: 20px;
+}
+.study-slide { position: absolute; inset: 0; }
+@keyframes slideInRight { from { transform: translateX(110%); } to { transform: translateX(0); } }
+@keyframes slideOutLeft  { from { transform: translateX(0); }    to { transform: translateX(-110%); } }
+.slide-in  { animation: slideInRight .32s cubic-bezier(.4,0,.2,1) both; }
+.slide-out { animation: slideOutLeft  .32s cubic-bezier(.4,0,.2,1) both; pointer-events: none; }
+
+.study-card-wrap { perspective: 1200px; width: 100%; height: 100%; cursor: pointer; touch-action: manipulation; user-select: none; }
+.study-card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .48s cubic-bezier(.4,0,.2,1); }
+.study-card.flipped { transform: rotateY(180deg); }
+.study-face {
+  position: absolute; inset: 0; border-radius: 20px; backface-visibility: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px 20px; box-shadow: var(--sh-lg); gap: 10px;
+}
+.sf-front { background: var(--card-front); }
+.sf-back  { background: var(--card-back); transform: rotateY(180deg); }
+.study-word { font-size: 1.6rem; font-weight: 900; color: var(--text); text-align: center; word-break: break-word; line-height: 1.2; }
+.study-tap { font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: rgba(128,128,128,.55); }
+
+.del-card-btn {
+  position: absolute; top: 10px; right: 10px; width: 32px; height: 32px;
+  border-radius: 8px; border: none; background: rgba(224,33,29,.15); color: var(--red);
+  font-size: .9rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation; z-index: 10;
+}
+.del-card-btn:active { background: rgba(224,33,29,.3); }
+
+.study-hint { font-size: .8rem; font-weight: 700; color: var(--text-light); text-align: center; min-height: 20px; }
+
+.study-float {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  display: flex; gap: 16px; opacity: 0; pointer-events: none;
+  transition: opacity .22s, transform .22s; z-index: 50;
+}
+.study-float.visible { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+.float-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; touch-action: manipulation; user-select: none; }
+.fbi { width: 62px; height: 62px; border-radius: 16px; border: none; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 6px 24px rgba(0,0,0,.25); cursor: pointer; }
+.fbi:active { transform: scale(.91); }
+.fbi-b { background: var(--blue); color: #fff; }
+.fbi-g { background: var(--green); color: #fff; }
+.float-lbl { font-size: .7rem; font-weight: 800; color: var(--text-light); white-space: nowrap; }
+
+/* ===== DONE ===== */
+#done-screen { align-items: center; justify-content: center; padding: 40px 20px; }
+.done-inner { width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+.done-emoji { font-size: 4rem; }
+.done-title { font-size: 1.7rem; font-weight: 900; color: var(--text); }
+.done-sub { font-size: .93rem; font-weight: 700; color: var(--text-mid); }
+.done-btn { width: 100%; padding: 16px 20px; border-radius: var(--r); border: none; font-family: 'Nunito', sans-serif; font-size: .97rem; font-weight: 800; cursor: pointer; box-shadow: var(--sh); touch-action: manipulation; }
+.done-btn:active { opacity: .85; }
+.db-g { background: var(--green); color: #fff; }
+.db-o { background: var(--surface); color: var(--text-mid); border: 2px solid var(--border); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-box {
+  background: var(--surface); border-radius: var(--r);
+  padding: 28px 24px; width: 100%; max-width: 320px;
+  box-shadow: var(--sh-lg); display: flex; flex-direction: column; gap: 18px;
+  border: 1.5px solid var(--border);
+}
+.modal-msg { font-size: 1rem; font-weight: 700; color: var(--text); text-align: center; line-height: 1.5; }
+.modal-btns { display: flex; gap: 10px; }
+.modal-btn { flex: 1; padding: 13px; border-radius: var(--rs); border: none; font-family: 'Nunito', sans-serif; font-size: .95rem; font-weight: 800; cursor: pointer; touch-action: manipulation; }
+.modal-btn:active { opacity: .85; }
+.modal-cancel  { background: var(--surface2); color: var(--text-mid); }
+.modal-confirm { background: var(--red); color: #fff; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--text); color: var(--bg);
+  padding: 10px 20px; border-radius: 12px;
+  font-size: .86rem; font-weight: 700; z-index: 9999;
+  transition: transform .26s ease; pointer-events: none;
+  white-space: nowrap; box-shadow: var(--sh-lg);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===== RESPONSIVE ===== */
+@media (min-width: 600px) {
+  .fc-wrap { width: 400px; height: 230px; }
+  .study-viewport { width: 400px; height: 240px; }
+  .study-word { font-size: 2rem; }
+}
+@media (max-width: 360px) {
+  .study-word { font-size: 1.35rem; }
+  .fbi { width: 54px; height: 54px; }
+  .ibtn { width: 40px; height: 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home-screen" class="screen active">
+  <div class="home-header">
+    <div class="logo-wrap">
+      <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50,64) rotate(-14) translate(-32,-17)">
+          <rect x="0" y="3" width="64" height="34" rx="7" fill="#b01815"/>
+          <rect x="0" y="0" width="64" height="34" rx="7" fill="#e0211d"/>
+        </g>
+        <g transform="translate(50,52) rotate(9) translate(-32,-17)">
+          <rect x="0" y="3" width="64" height="34" rx="7" fill="#2a8026"/>
+          <rect x="0" y="0" width="64" height="34" rx="7" fill="#3aaa35"/>
+        </g>
+      </svg>
+      <div class="logo-text-group">
+        <span class="logo-top">Łatwe</span>
+        <span class="logo-bot">Fiszki</span>
+      </div>
+    </div>
+    <div class="home-header-right">
+      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Zmień motyw"></button>
+      <button class="home-menu-btn" onclick="showMenu()">📚 Zestawy</button>
+    </div>
+  </div>
+  <div class="home-body">
+    <button class="create-card-btn" onclick="goToCreate()">
+      <div class="create-plus">+</div>
+      <div class="create-card-label">Stwórz nowy zestaw</div>
+      <div class="create-card-sub">Dodaj słówka i zacznij naukę</div>
+    </button>
+    <div class="home-sets-wrap" id="home-sets-wrap" style="display:none">
+      <div class="section-title">Ostatnie zestawy</div>
+      <div id="home-sets-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE -->
+<div id="create-screen" class="screen">
+  <div class="topbar">
+    <button class="ibtn ibtn-red" onclick="goHome()">✕</button>
+    <input class="name-input" id="set-name-input" type="text" placeholder="Nazwa zestawu…" maxlength="40" style="flex:1;max-width:none;">
+    <button class="ibtn ibtn-green" onclick="saveSet()">💾</button>
+  </div>
+  <div class="create-body">
+    <div class="card-step-label" id="card-counter">Fiszka 1</div>
+    <div class="fc-wrap">
+      <div class="fc" id="create-card">
+        <div class="fc-face fc-front">
+          <div class="fc-label">Język obcy</div>
+          <textarea class="fc-input" id="front-input" placeholder="Wpisz słówko…" rows="2"></textarea>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-label">Tłumaczenie</div>
+          <textarea class="fc-input" id="back-input" placeholder="Wpisz tłumaczenie…" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="create-hint" id="create-hint">Wpisz słówko, potem kliknij strzałkę →</div>
+    <div class="create-next-row">
+      <button class="ibtn ibtn-blue" onclick="handleNextBtn()" style="width:58px;height:58px;border-radius:14px;font-size:1.4rem;">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div id="menu-screen" class="screen">
+  <div class="topbar">
+    <button class="ibtn ibtn-red" onclick="goHome()">✕</button>
+    <div class="topbar-title">Moje zestawy</div>
+  </div>
+  <div class="menu-body" id="menu-body"></div>
+</div>
+
+<!-- EDIT -->
+<div id="edit-screen" class="screen">
+  <div class="topbar">
+    <button class="ibtn ibtn-red" onclick="showMenu()">✕</button>
+    <div class="topbar-title" id="edit-title">Edytuj zestaw</div>
+    <button class="ibtn ibtn-green" onclick="saveEdits()">💾</button>
+  </div>
+  <div class="edit-body" id="edit-body"></div>
+</div>
+
+<!-- START -->
+<div id="start-screen" class="screen">
+  <div class="start-inner">
+    <div class="start-icon">📖</div>
+    <div class="start-name" id="start-name"></div>
+    <div class="start-meta" id="start-meta"></div>
+    <div class="start-divider"></div>
+    <div id="start-opts" style="width:100%;display:flex;flex-direction:column;gap:12px;"></div>
+    <button class="start-back" onclick="showMenu()">← Wróć do listy</button>
+  </div>
+</div>
+
+<!-- STUDY -->
+<div id="study-screen" class="screen">
+  <div class="study-topbar">
+    <button class="ibtn ibtn-red" onclick="exitStudy()">✕</button>
+    <div class="study-prog-wrap">
+      <div class="study-counter" id="study-counter">1 / 1</div>
+      <div class="study-prog-bar">
+        <div class="study-prog-fill" id="study-prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <button class="swap-pill" id="swap-pill" onclick="toggleSwap()">
+      <span style="font-size:1rem;">⇄</span>
+      <span class="swap-pill-txt">Zamień</span>
+    </button>
+  </div>
+  <div class="study-body">
+    <div class="study-viewport" id="study-viewport"></div>
+    <div class="study-hint" id="study-hint">Kliknij kartę, aby zobaczyć tłumaczenie</div>
+  </div>
+  <div class="study-float" id="study-float">
+    <div class="float-btn" onclick="nextStudyCard()">
+      <button class="fbi fbi-b">→</button>
+      <span class="float-lbl">Następna</span>
+    </div>
+    <div class="float-btn" onclick="approveCard()">
+      <button class="fbi fbi-g">✓</button>
+      <span class="float-lbl">Zaliczona</span>
+    </div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div id="done-screen" class="screen">
+  <div class="done-inner">
+    <div class="done-emoji">🎉</div>
+    <div class="done-title">Świetna robota!</div>
+    <div class="done-sub" id="done-sub"></div>
+    <button class="done-btn db-g" onclick="showMenu()">Wróć do zestawów</button>
+    <button class="done-btn db-o" onclick="restartStudy()">Zacznij od nowa</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== STATE ===== */
+let sets=[], editingCards=[], currentCardFlipped=false;
+let studyQueue=[], studyCurrentIdx=0, studySetIndex=null;
+let studyFlipped=false, swapMode=false, editSetIndex=null, isAnimating=false;
+
+/* ===== THEME ===== */
+function applyTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark);
+  document.getElementById('theme-btn').textContent = dark ? '☀️' : '🌙';
+}
+function toggleTheme() {
+  const isDark = document.documentElement.classList.contains('dark');
+  localStorage.setItem('fiszki_theme', isDark ? 'light' : 'dark');
+  applyTheme(!isDark);
+}
+// Load saved theme on start
+(function() {
+  const saved = localStorage.getItem('fiszki_theme');
+  // If no preference saved, check system preference
+  const prefersDark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(prefersDark);
+})();
+
+/* ===== STORAGE ===== */
+function loadSets(){try{sets=JSON.parse(localStorage.getItem('fiszki_sets')||'[]');}catch{sets=[];}}
+function saveSets(){localStorage.setItem('fiszki_sets',JSON.stringify(sets));}
+
+/* ===== MODAL ===== */
+function modal(message, onConfirm) {
+  const ov=document.createElement('div');
+  ov.className='modal-overlay';
+  ov.innerHTML=`<div class="modal-box"><div class="modal-msg">${message}</div><div class="modal-btns"><button class="modal-btn modal-cancel">Anuluj</button><button class="modal-btn modal-confirm">Usuń</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('.modal-cancel').onclick=()=>ov.remove();
+  ov.querySelector('.modal-confirm').onclick=()=>{ov.remove();onConfirm();};
+}
+
+/* ===== SCREENS ===== */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ===== SHUFFLE ===== */
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+/* ===== HOME ===== */
+function renderHome(){
+  loadSets();
+  showScreen('home-screen');
+  const wrap=document.getElementById('home-sets-wrap');
+  const list=document.getElementById('home-sets-list');
+  if(!sets.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  list.innerHTML='';
+  [...sets].slice(-5).reverse().forEach((set,ri)=>{
+    const i=sets.length-1-ri;
+    const approved=(set.approved||[]).length;
+    const total=set.cards.length;
+    const div=document.createElement('div');
+    div.className='home-set-card';
+    div.addEventListener('click',()=>openStartScreen(i));
+    div.innerHTML=`
+      <div class="home-set-icon">📋</div>
+      <div class="home-set-info">
+        <div class="home-set-name">${esc(set.name)}</div>
+        <div class="home-set-meta">${total} fiszek${approved>0?` · ${approved} zaliczonych`:''}</div>
+        ${approved>0?`<div class="home-set-progress">✓ ${Math.round(approved/total*100)}% ukończono</div>`:''}
+      </div>
+      <div class="home-set-arrow">›</div>`;
+    list.appendChild(div);
+  });
+}
+function goHome(){renderHome();}
+
+/* ===== CREATE ===== */
+function goToCreate(){
+  editingCards=[];currentCardFlipped=false;
+  document.getElementById('set-name-input').value='';
+  document.getElementById('front-input').value='';
+  document.getElementById('back-input').value='';
+  document.getElementById('create-card').classList.remove('flipped');
+  document.getElementById('card-counter').textContent='Fiszka 1';
+  document.getElementById('create-hint').textContent='Wpisz słówko, potem kliknij strzałkę →';
+  showScreen('create-screen');
+  setTimeout(()=>document.getElementById('front-input').focus(),120);
+}
+function handleNextBtn(){
+  if(!currentCardFlipped){
+    const v=document.getElementById('front-input').value.trim();
+    if(!v){showToast('Wpisz słówko!');return;}
+    document.getElementById('create-card').classList.add('flipped');
+    currentCardFlipped=true;
+    document.getElementById('create-hint').textContent='Teraz wpisz tłumaczenie →';
+    setTimeout(()=>document.getElementById('back-input').focus(),520);
+  } else {
+    const front=document.getElementById('front-input').value.trim();
+    const back=document.getElementById('back-input').value.trim();
+    if(!back){showToast('Wpisz tłumaczenie!');return;}
+    editingCards.push({front,back});
+    document.getElementById('front-input').value='';
+    document.getElementById('back-input').value='';
+    document.getElementById('create-card').classList.remove('flipped');
+    currentCardFlipped=false;
+    document.getElementById('card-counter').textContent=`Fiszka ${editingCards.length+1}`;
+    document.getElementById('create-hint').textContent='Wpisz słówko, potem kliknij strzałkę →';
+    showToast(`✓ Fiszka ${editingCards.length} dodana`);
+    setTimeout(()=>document.getElementById('front-input').focus(),520);
+  }
+}
+function saveSet(){
+  const front=document.getElementById('front-input').value.trim();
+  const back=document.getElementById('back-input').value.trim();
+  const name=document.getElementById('set-name-input').value.trim()||`Zestaw ${sets.length+1}`;
+  if(front&&back) editingCards.push({front,back});
+  else if(front&&currentCardFlipped&&!back){showToast('Wpisz tłumaczenie!');return;}
+  else if(front&&!currentCardFlipped){showToast('Dokończ bieżącą fiszkę!');return;}
+  if(!editingCards.length){showToast('Dodaj co najmniej jedną fiszkę!');return;}
+  loadSets();
+  sets.push({id:Date.now(),name,cards:editingCards,approved:[]});
+  saveSets();
+  showToast(`💾 Zapisano „${name}" (${editingCards.length} fiszek)`);
+  setTimeout(()=>renderHome(),900);
+}
+
+/* ===== MENU ===== */
+function mkBtn(cls,label,handler){
+  const b=document.createElement('button');
+  b.className=cls;b.textContent=label;
+  b.addEventListener('click',handler);
+  return b;
+}
+function showMenu(){
+  loadSets();
+  showScreen('menu-screen');
+  const body=document.getElementById('menu-body');
+  body.innerHTML='';
+  if(!sets.length){
+    body.innerHTML=`<div class="menu-empty"><div class="menu-empty-icon">📭</div><div class="menu-empty-txt">Brak zestawów.<br>Utwórz swoje pierwsze fiszki!</div></div>`;
+    return;
+  }
+  sets.forEach((set,i)=>{
+    const approved=(set.approved||[]).length;
+    const total=set.cards.length;
+    const pct=total?Math.round(approved/total*100):0;
+    const hasProg=approved>0;
+
+    const card=document.createElement('div');
+    card.className='menu-card';
+
+    const top=document.createElement('div');
+    top.className='menu-card-top';
+    top.innerHTML=`
+      <div class="menu-card-icon">📋</div>
+      <div class="menu-card-info">
+        <div class="menu-card-name">${esc(set.name)}</div>
+        <div class="menu-card-meta">${total} fiszek${hasProg?` · ${approved} zaliczonych · ${pct}%`:''}</div>
+        ${hasProg?`<div class="menu-prog-bar"><div class="menu-prog-fill" style="width:${pct}%"></div></div>`:''}
+      </div>`;
+    card.appendChild(top);
+
+    const row=document.createElement('div');
+    row.className='menu-card-btns';
+    if(hasProg){
+      row.appendChild(mkBtn('mab mab-g','🔄 Od nowa',()=>startStudy(i,false)));
+      row.appendChild(mkBtn('mab mab-b','▶ Kontynuuj',()=>startStudy(i,true)));
+    } else {
+      row.appendChild(mkBtn('mab mab-g','▶ Rozpocznij',()=>startStudy(i,false)));
+    }
+    row.appendChild(mkBtn('mab mab-o','✏️ Edytuj',()=>openEdit(i)));
+    row.appendChild(mkBtn('mab mab-r','🗑',()=>{
+      modal(`Usunąć zestaw „${set.name}"?`,()=>{loadSets();sets.splice(i,1);saveSets();showMenu();});
+    }));
+    card.appendChild(row);
+    body.appendChild(card);
+  });
+}
+
+/* ===== EDIT ===== */
+function openEdit(i){
+  loadSets();editSetIndex=i;
+  document.getElementById('edit-title').textContent=`Edytuj: ${sets[i].name}`;
+  renderEditBody();
+  showScreen('edit-screen');
+}
+function renderEditBody(){
+  const set=sets[editSetIndex];
+  const body=document.getElementById('edit-body');
+  body.innerHTML='';
+
+  const addBtn=document.createElement('button');
+  addBtn.className='edit-add-btn';
+  addBtn.textContent='＋ Dodaj nową fiszkę';
+  addBtn.addEventListener('click',()=>{
+    collectEditInputs();
+    set.cards.push({front:'',back:''});
+    saveSets();renderEditBody();
+    setTimeout(()=>body.lastElementChild.scrollIntoView({behavior:'smooth'}),80);
+  });
+  body.appendChild(addBtn);
+
+  set.cards.forEach((card,ci)=>{
+    const item=document.createElement('div');item.className='edit-card-item';
+    const hdr=document.createElement('div');hdr.className='edit-card-header';
+    const num=document.createElement('span');num.className='edit-card-num';num.textContent=`Fiszka ${ci+1}`;
+    const delB=document.createElement('button');delB.className='ibtn-sm ibtn-sm-red';delB.textContent='🗑';
+    delB.addEventListener('click',()=>removeEditCard(ci));
+    hdr.appendChild(num);hdr.appendChild(delB);
+
+    const cb=document.createElement('div');cb.className='edit-card-body';
+    cb.innerHTML=`
+      <div><div class="edit-field-label">Język obcy</div>
+        <input class="edit-input" id="ef-${ci}" value="${esc(card.front)}" placeholder="Język obcy…"></div>
+      <div><div class="edit-field-label">Tłumaczenie</div>
+        <input class="edit-input" id="eb-${ci}" value="${esc(card.back)}" placeholder="Tłumaczenie…"></div>`;
+
+    item.appendChild(hdr);item.appendChild(cb);
+    body.appendChild(item);
+  });
+
+  const saveBtn=document.createElement('button');
+  saveBtn.className='edit-save-btn';
+  saveBtn.textContent='💾 Zapisz zmiany';
+  saveBtn.addEventListener('click',saveEdits);
+  body.appendChild(saveBtn);
+}
+function collectEditInputs(){
+  const set=sets[editSetIndex];
+  set.cards.forEach((card,ci)=>{
+    const f=document.getElementById(`ef-${ci}`);
+    const b=document.getElementById(`eb-${ci}`);
+    if(f) card.front=f.value.trim();
+    if(b) card.back=b.value.trim();
+  });
+}
+function removeEditCard(ci){
+  loadSets();
+  const set=sets[editSetIndex];
+  if(set.cards.length<=1){showToast('Zestaw musi mieć co najmniej 1 fiszkę!');return;}
+  modal('Usunąć tę fiszkę?',()=>{
+    collectEditInputs();
+    set.cards.splice(ci,1);
+    set.approved=(set.approved||[]).filter(idx=>idx!==ci).map(idx=>idx>ci?idx-1:idx);
+    saveSets();renderEditBody();
+    showToast('Fiszka usunięta');
+  });
+}
+function saveEdits(){
+  loadSets();
+  const set=sets[editSetIndex];
+  collectEditInputs();
+  set.cards=set.cards.filter(c=>c.front||c.back);
+  if(!set.cards.length){showToast('Zestaw musi mieć co najmniej 1 fiszkę!');renderEditBody();return;}
+  set.approved=(set.approved||[]).filter(idx=>idx<set.cards.length);
+  saveSets();showToast('✓ Zmiany zapisane');
+  setTimeout(()=>showMenu(),700);
+}
+
+/* ===== START SCREEN ===== */
+function openStartScreen(i){
+  loadSets();studySetIndex=i;
+  const set=sets[i];
+  const approved=(set.approved||[]).length;
+  const total=set.cards.length;
+  const hasProg=approved>0;
+  document.getElementById('start-name').textContent=set.name;
+  document.getElementById('start-meta').textContent=`${total} fiszek${hasProg?` · ${approved} zaliczonych`:''}`;
+  const opts=document.getElementById('start-opts');
+  opts.innerHTML='';
+  if(hasProg){
+    const b1=document.createElement('button');b1.className='start-btn sb-g';
+    b1.innerHTML=`<span class="start-btn-icon">🔄</span><div class="start-btn-label">Zacznij od nowa<div class="start-btn-sub">Wszystkie ${total} fiszek</div></div>`;
+    b1.addEventListener('click',()=>startStudy(i,false));
+    const b2=document.createElement('button');b2.className='start-btn sb-b';
+    b2.innerHTML=`<span class="start-btn-icon">▶</span><div class="start-btn-label">Kontynuuj<div class="start-btn-sub">Pozostało ${total-approved} fiszek</div></div>`;
+    b2.addEventListener('click',()=>startStudy(i,true));
+    opts.appendChild(b1);opts.appendChild(b2);
+  } else {
+    const b=document.createElement('button');b.className='start-btn sb-g';
+    b.innerHTML=`<span class="start-btn-icon">▶</span><div class="start-btn-label">Rozpocznij naukę<div class="start-btn-sub">${total} fiszek</div></div>`;
+    b.addEventListener('click',()=>startStudy(i,false));
+    opts.appendChild(b);
+  }
+  showScreen('start-screen');
+}
+
+/* ===== STUDY ===== */
+function startStudy(i,cont){
+  loadSets();studySetIndex=i;swapMode=false;updateSwapPill();
+  const set=sets[i];
+  if(!cont){set.approved=[];saveSets();}
+  const approved=set.approved||[];
+  studyQueue=shuffle(set.cards.map((c,idx)=>({...c,originalIdx:idx})).filter(c=>!approved.includes(c.originalIdx)));
+  if(!studyQueue.length){showDone();return;}
+  studyCurrentIdx=0;studyFlipped=false;isAnimating=false;
+  showScreen('study-screen');
+  document.getElementById('study-float').classList.remove('visible');
+  mountCard(false);
+}
+
+function mountCard(animate){
+  const set=sets[studySetIndex];
+  const approvedCount=(set.approved||[]).length;
+  document.getElementById('study-counter').textContent=`${studyCurrentIdx+1} / ${studyQueue.length}`;
+  document.getElementById('study-prog-fill').style.width=(approvedCount/set.cards.length*100)+'%';
+  document.getElementById('study-hint').textContent='Kliknij kartę, aby zobaczyć tłumaczenie';
+  studyFlipped=false;
+  document.getElementById('study-float').classList.remove('visible');
+
+  const card=studyQueue[studyCurrentIdx];
+  const frontTxt=swapMode?card.back:card.front;
+  const backTxt=swapMode?card.front:card.back;
+
+  const slide=document.createElement('div');slide.className='study-slide';
+  const wrap=document.createElement('div');wrap.className='study-card-wrap';
+  wrap.addEventListener('click',flipStudyCard);
+
+  const sc=document.createElement('div');sc.className='study-card';
+
+  const ff=document.createElement('div');ff.className='study-face sf-front';
+  const fw=document.createElement('div');fw.className='study-word';fw.textContent=frontTxt;
+  const tap=document.createElement('div');tap.className='study-tap';tap.textContent='dotknij aby zobaczyć tłumaczenie';
+  ff.appendChild(fw);ff.appendChild(tap);
+
+  const bf=document.createElement('div');bf.className='study-face sf-back';
+  const delB=document.createElement('button');delB.className='del-card-btn';delB.textContent='🗑';
+  delB.addEventListener('click',(e)=>{e.stopPropagation();onDeleteCard();});
+  const bw=document.createElement('div');bw.className='study-word';bw.textContent=backTxt;
+  bf.appendChild(delB);bf.appendChild(bw);
+
+  sc.appendChild(ff);sc.appendChild(bf);
+  wrap.appendChild(sc);slide.appendChild(wrap);
+
+  const vp=document.getElementById('study-viewport');
+  if(!animate){
+    vp.innerHTML='';vp.appendChild(slide);return;
+  }
+  const old=vp.querySelector('.study-slide');
+  if(old){
+    old.classList.add('slide-out');
+    old.addEventListener('animationend',()=>old.remove(),{once:true});
+  }
+  slide.classList.add('slide-in');
+  slide.addEventListener('animationend',()=>{slide.classList.remove('slide-in');isAnimating=false;},{once:true});
+  vp.appendChild(slide);
+}
+
+function flipStudyCard(){
+  if(isAnimating)return;
+  const sc=document.getElementById('study-viewport').querySelector('.study-card');
+  if(!sc)return;
+  studyFlipped=!studyFlipped;
+  sc.classList.toggle('flipped',studyFlipped);
+  document.getElementById('study-float').classList.toggle('visible',studyFlipped);
+  document.getElementById('study-hint').textContent=studyFlipped?'':'Kliknij kartę, aby zobaczyć tłumaczenie';
+}
+
+function nextStudyCard(){
+  if(isAnimating)return;isAnimating=true;
+  studyCurrentIdx++;
+  if(studyCurrentIdx>=studyQueue.length){isAnimating=false;showDone();return;}
+  mountCard(true);
+}
+
+function approveCard(){
+  if(isAnimating)return;isAnimating=true;
+  const card=studyQueue[studyCurrentIdx];
+  const set=sets[studySetIndex];
+  if(!set.approved.includes(card.originalIdx)){set.approved.push(card.originalIdx);saveSets();}
+  studyQueue.splice(studyCurrentIdx,1);
+  if(!studyQueue.length||studyCurrentIdx>=studyQueue.length){isAnimating=false;showDone();return;}
+  mountCard(true);
+}
+
+function onDeleteCard(){
+  modal('Usunąć tę fiszkę z zestawu?',()=>{
+    const card=studyQueue[studyCurrentIdx];
+    const set=sets[studySetIndex];
+    set.cards.splice(card.originalIdx,1);
+    set.approved=(set.approved||[]).filter(idx=>idx!==card.originalIdx).map(idx=>idx>card.originalIdx?idx-1:idx);
+    saveSets();
+    studyQueue.splice(studyCurrentIdx,1);
+    studyQueue=studyQueue.map(c=>({...c,originalIdx:c.originalIdx>card.originalIdx?c.originalIdx-1:c.originalIdx}));
+    if(!studyQueue.length||studyCurrentIdx>=studyQueue.length){showDone();return;}
+    mountCard(true);
+  });
+}
+
+function toggleSwap(){
+  swapMode=!swapMode;updateSwapPill();
+  studyFlipped=false;
+  document.getElementById('study-float').classList.remove('visible');
+  mountCard(false);
+  showToast(swapMode?'⇄ Tłumaczenie jako pytanie':'⇄ Język obcy jako pytanie');
+}
+function updateSwapPill(){document.getElementById('swap-pill').classList.toggle('active',swapMode);}
+function exitStudy(){showMenu();}
+function restartStudy(){startStudy(studySetIndex,false);}
+
+/* ===== DONE ===== */
+function showDone(){
+  showScreen('done-screen');
+  const set=sets[studySetIndex];
+  const approved=(set.approved||[]).length;
+  document.getElementById('done-sub').textContent=`Zaliczono ${approved} z ${set.cards.length} fiszek w zestawie „${set.name}".`;
+}
+
+/* ===== UTILS ===== */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+let toastT;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('create-screen').classList.contains('active')){
+    if(e.key==='Enter'&&!e.shiftKey&&document.activeElement.tagName==='TEXTAREA'){e.preventDefault();handleNextBtn();}
+  }
+  if(document.getElementById('study-screen').classList.contains('active')){
+    if(e.key===' '||e.key==='Enter'){e.preventDefault();flipStudyCard();}
+    if(e.key==='ArrowRight'&&studyFlipped)nextStudyCard();
+    if((e.key==='ArrowUp'||e.key==='a')&&studyFlipped)approveCard();
+  }
+});
+
+renderHome();
+</script>
+</body>
+</html>
